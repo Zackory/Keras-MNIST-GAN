@@ -38,37 +38,27 @@ def initNormal(shape, name=None):
 # Optimizer
 adam = Adam(lr=0.0002, beta_1=0.5)
 
-reg = lambda: l1(1e-5)
-
 generator = Sequential()
-generator.add(Dense(1024/4, input_dim=randomDim, W_regularizer=reg()))
-# generator.add(BatchNormalization(mode=0))
+generator.add(Dense(256, input_dim=randomDim, init=initNormal))
 generator.add(LeakyReLU(0.2))
-generator.add(Dense(1024/2, W_regularizer=reg()))
-# generator.add(BatchNormalization(mode=0))
+generator.add(Dense(512))
 generator.add(LeakyReLU(0.2))
-generator.add(Dense(1024, W_regularizer=reg()))
-# generator.add(BatchNormalization(mode=0))
+generator.add(Dense(1024))
 generator.add(LeakyReLU(0.2))
-generator.add(Dense(784, activation='sigmoid', W_regularizer=reg()))
+generator.add(Dense(784, activation='tanh'))
 generator.compile(loss='binary_crossentropy', optimizer=adam)
 
-reg = lambda: l1l2(1e-5, 1e-5)
-
 discriminator = Sequential()
-discriminator.add(Dense(1024, input_dim=784, W_regularizer=reg()))
-# discriminator.add(BatchNormalization(mode=1))
+discriminator.add(Dense(1024, input_dim=784, init=initNormal))
 discriminator.add(LeakyReLU(0.2))
-discriminator.add(Dropout(0.5))
-discriminator.add(Dense(1024/2, W_regularizer=reg()))
-# discriminator.add(BatchNormalization(mode=1))
+discriminator.add(Dropout(0.3))
+discriminator.add(Dense(512))
 discriminator.add(LeakyReLU(0.2))
-discriminator.add(Dropout(0.5))
-discriminator.add(Dense(1024/4, W_regularizer=reg()))
-# discriminator.add(BatchNormalization(mode=1))
+discriminator.add(Dropout(0.3))
+discriminator.add(Dense(256))
 discriminator.add(LeakyReLU(0.2))
-discriminator.add(Dropout(0.5))
-discriminator.add(Dense(1, activation='sigmoid', W_regularizer=reg()))
+discriminator.add(Dropout(0.3))
+discriminator.add(Dense(1, activation='sigmoid'))
 discriminator.compile(loss='binary_crossentropy', optimizer=adam)
 
 # Combined network
@@ -79,35 +69,6 @@ ganOutput = discriminator(x)
 gan = Model(input=ganInput, output=ganOutput)
 gan.compile(loss='binary_crossentropy', optimizer=adam)
 
-'''
-# Generator
-generator = Sequential()
-generator.add(Dense(128, input_shape=(randomDim,), init=initNormal))
-# generator.add(LeakyReLU(0.2))
-generator.add(Dense(256))
-# generator.add(LeakyReLU(0.2))
-generator.add(Dense(784, activation='tanh'))
-generator.compile(loss='binary_crossentropy', optimizer='adam')
-
-# Discriminator
-discriminator = Sequential()
-discriminator.add(Dense(256, input_shape=(784,), init=initNormal))
-discriminator.add(LeakyReLU(0.2))
-discriminator.add(Dropout(0.25))
-discriminator.add(Dense(128))
-discriminator.add(LeakyReLU(0.2))
-discriminator.add(Dropout(0.25))
-discriminator.add(Dense(1, activation='sigmoid'))
-discriminator.compile(loss='binary_crossentropy', optimizer='adam')
-
-# Combined network
-discriminator.trainable = False
-ganInput = Input(shape=(randomDim,))
-x = generator(ganInput)
-ganOutput = discriminator(x)
-gan = Model(input=ganInput, output=ganOutput)
-gan.compile(loss='binary_crossentropy', optimizer='adam')
-'''
 dLosses = []
 gLosses = []
 
@@ -177,7 +138,7 @@ def train(epochs=1, batchSize=128):
         dLosses.append(dloss)
         gLosses.append(gloss)
 
-        if e == 1 or e % 5 == 0:
+        if e == 1 or e % 20 == 0:
             plotGeneratedImages(e)
             saveModels(e)
 
@@ -185,5 +146,5 @@ def train(epochs=1, batchSize=128):
     plotLoss(e)
 
 if __name__ == '__main__':
-    train(10, 128)
+    train(200, 128)
 
