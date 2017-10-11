@@ -8,11 +8,11 @@ from keras.layers import Input
 from keras.models import Model, Sequential
 from keras.layers.core import Reshape, Dense, Dropout, Flatten
 from keras.layers.advanced_activations import LeakyReLU
-from keras.layers.convolutional import Convolution2D, UpSampling2D
+from keras.layers.convolutional import Conv2D, UpSampling2D
 from keras.datasets import mnist
 from keras.optimizers import Adam
 from keras import backend as K
-from keras import initializations
+from keras import initializers
 
 K.set_image_dim_ordering('th')
 
@@ -29,31 +29,27 @@ randomDim = 100
 X_train = (X_train.astype(np.float32) - 127.5)/127.5
 X_train = X_train[:, np.newaxis, :, :]
 
-# Function for initializing network weights
-def initNormal(shape, name=None):
-    return initializations.normal(shape, scale=0.02, name=name)
-
 # Optimizer
 adam = Adam(lr=0.0002, beta_1=0.5)
 
 # Generator
 generator = Sequential()
-generator.add(Dense(128*7*7, input_dim=randomDim, init=initNormal))
+generator.add(Dense(128*7*7, input_dim=randomDim, kernel_initializer=initializers.RandomNormal(stddev=0.02)))
 generator.add(LeakyReLU(0.2))
 generator.add(Reshape((128, 7, 7)))
 generator.add(UpSampling2D(size=(2, 2)))
-generator.add(Convolution2D(64, 5, 5, border_mode='same'))
+generator.add(Conv2D(64, kernel_size=(5, 5), padding='same'))
 generator.add(LeakyReLU(0.2))
 generator.add(UpSampling2D(size=(2, 2)))
-generator.add(Convolution2D(1, 5, 5, border_mode='same', activation='tanh'))
+generator.add(Conv2D(1, kernel_size=(5, 5), padding='same', activation='tanh'))
 generator.compile(loss='binary_crossentropy', optimizer=adam)
 
 # Discriminator
 discriminator = Sequential()
-discriminator.add(Convolution2D(64, 5, 5, border_mode='same', subsample=(2, 2), input_shape=(1, 28, 28), init=initNormal))
+discriminator.add(Conv2D(64, kernel_size=(5, 5), strides=(2, 2), padding='same', input_shape=(1, 28, 28), kernel_initializer=initializers.RandomNormal(stddev=0.02)))
 discriminator.add(LeakyReLU(0.2))
 discriminator.add(Dropout(0.3))
-discriminator.add(Convolution2D(128, 5, 5, border_mode='same', subsample=(2, 2)))
+discriminator.add(Conv2D(128, kernel_size=(5, 5), strides=(2, 2), padding='same'))
 discriminator.add(LeakyReLU(0.2))
 discriminator.add(Dropout(0.3))
 discriminator.add(Flatten())
@@ -65,7 +61,7 @@ discriminator.trainable = False
 ganInput = Input(shape=(randomDim,))
 x = generator(ganInput)
 ganOutput = discriminator(x)
-gan = Model(input=ganInput, output=ganOutput)
+gan = Model(inputs=ganInput, outputs=ganOutput)
 gan.compile(loss='binary_crossentropy', optimizer=adam)
 
 dLosses = []

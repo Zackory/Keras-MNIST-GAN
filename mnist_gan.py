@@ -10,11 +10,10 @@ from keras.layers.core import Reshape, Dense, Dropout, Flatten
 from keras.layers.advanced_activations import LeakyReLU
 from keras.layers.convolutional import Convolution2D, UpSampling2D
 from keras.layers.normalization import BatchNormalization
-from keras.regularizers import l1, l1l2
 from keras.datasets import mnist
 from keras.optimizers import Adam
 from keras import backend as K
-from keras import initializations
+from keras import initializers
 
 K.set_image_dim_ordering('th')
 
@@ -31,15 +30,11 @@ randomDim = 100
 X_train = (X_train.astype(np.float32) - 127.5)/127.5
 X_train = X_train.reshape(60000, 784)
 
-# Function for initializing network weights
-def initNormal(shape, name=None):
-    return initializations.normal(shape, scale=0.02, name=name)
-
 # Optimizer
 adam = Adam(lr=0.0002, beta_1=0.5)
 
 generator = Sequential()
-generator.add(Dense(256, input_dim=randomDim, init=initNormal))
+generator.add(Dense(256, input_dim=randomDim, kernel_initializer=initializers.RandomNormal(stddev=0.02)))
 generator.add(LeakyReLU(0.2))
 generator.add(Dense(512))
 generator.add(LeakyReLU(0.2))
@@ -49,7 +44,7 @@ generator.add(Dense(784, activation='tanh'))
 generator.compile(loss='binary_crossentropy', optimizer=adam)
 
 discriminator = Sequential()
-discriminator.add(Dense(1024, input_dim=784, init=initNormal))
+discriminator.add(Dense(1024, input_dim=784, kernel_initializer=initializers.RandomNormal(stddev=0.02)))
 discriminator.add(LeakyReLU(0.2))
 discriminator.add(Dropout(0.3))
 discriminator.add(Dense(512))
@@ -66,7 +61,7 @@ discriminator.trainable = False
 ganInput = Input(shape=(randomDim,))
 x = generator(ganInput)
 ganOutput = discriminator(x)
-gan = Model(input=ganInput, output=ganOutput)
+gan = Model(inputs=ganInput, outputs=ganOutput)
 gan.compile(loss='binary_crossentropy', optimizer=adam)
 
 dLosses = []
