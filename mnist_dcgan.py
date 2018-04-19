@@ -97,13 +97,13 @@ def saveModels(epoch):
 
 def train(epochs=1, batchSize=128):
     batchCount = X_train.shape[0] / batchSize
-    print 'Epochs:', epochs
-    print 'Batch size:', batchSize
-    print 'Batches per epoch:', batchCount
+    print('Epochs:', epochs)
+    print('Batch size:', batchSize)
+    print('Batches per epoch:', batchCount)
 
-    for e in xrange(1, epochs+1):
-        print '-'*15, 'Epoch %d' % e, '-'*15
-        for _ in tqdm(xrange(batchCount)):
+    for e in range(1, epochs+1):
+        print('-'*15, 'Epoch %d' % e, '-'*15)
+        for _ in tqdm(range(batchCount)):
             # Get a random set of input noise and images
             noise = np.random.normal(0, 1, size=[batchSize, randomDim])
             imageBatch = X_train[np.random.randint(0, X_train.shape[0], size=batchSize)]
