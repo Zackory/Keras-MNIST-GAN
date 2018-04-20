@@ -133,7 +133,7 @@ def train(epochs=1, batchSize=128):
         dLosses.append(dloss)
         gLosses.append(gloss)
 
-        if e == 1 or e % 20 == 0:
+        if e == 1 or e % 1 == 0:
             plotGeneratedImages(e)
             saveModels(e)
 
@@ -141,5 +141,5 @@ def train(epochs=1, batchSize=128):
     plotLoss(e)
 
 if __name__ == '__main__':
-    train(200, 128)
+    train(epochs=200, batch_size=128)
 
