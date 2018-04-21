@@ -141,5 +141,5 @@ def train(epochs=1, batchSize=128):
     plotLoss(e)
 
 if __name__ == '__main__':
-    train(epochs=200, batch_size=128)
+    train(epochs=200, batchSize=128)
 
