@@ -97,14 +97,14 @@ def saveModels(epoch):
     discriminator.save('models/gan_discriminator_epoch_%d.h5' % epoch)
 
 def train(epochs=1, batchSize=128):
-    batchCount = X_train.shape[0] / batchSize
-    print 'Epochs:', epochs
-    print 'Batch size:', batchSize
-    print 'Batches per epoch:', batchCount
+    batchCount = X_train.shape[0] // batchSize
+    print('Epochs:', epochs)
+    print('Batch size:', batchSize)
+    print('Batches per epoch:', batchCount)
 
-    for e in xrange(1, epochs+1):
-        print '-'*15, 'Epoch %d' % e, '-'*15
-        for _ in tqdm(xrange(batchCount)):
+    for e in range(1, epochs+1):
+        print('-'*15, 'Epoch %d' % e, '-'*15)
+        for _ in tqdm(range(batchCount)):
             # Get a random set of input noise and images
             noise = np.random.normal(0, 1, size=[batchSize, randomDim])
             imageBatch = X_train[np.random.randint(0, X_train.shape[0], size=batchSize)]
@@ -133,7 +133,7 @@ def train(epochs=1, batchSize=128):
         dLosses.append(dloss)
         gLosses.append(gloss)
 
-        if e == 1 or e % 20 == 0:
+        if e == 1 or e % 1 == 0:
             plotGeneratedImages(e)
             saveModels(e)
 
@@ -141,5 +141,5 @@ def train(epochs=1, batchSize=128):
     plotLoss(e)
 
 if __name__ == '__main__':
-    train(200, 128)
+    train(epochs=200, batchSize=128)
 
