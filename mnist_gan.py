@@ -108,6 +108,9 @@ def train(epochs=1, batchSize=128):
             # Get a random set of input noise and images
             noise = np.random.normal(0, 1, size=[batchSize, randomDim])
             imageBatch = X_train[np.random.randint(0, X_train.shape[0], size=batchSize)]
+            # ImageBatch has to be reshape for X to be concatenated
+            imageBatch = imageBatch.reshape(batchSize,np.prod(X_train.shape[1:])
+            
 
             # Generate fake MNIST images
             generatedImages = generator.predict(noise)
